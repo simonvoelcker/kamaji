@@ -5,6 +5,14 @@
         <title>Ghibli Movies</title>
     </head>
     <body>
-
+        <script>
+            const loadMovies = async () => {
+                const response = await fetch('http://localhost:8000/api/films-and-people')
+                const filmsAndPeople = await response.json()
+                console.log(filmsAndPeople)
+                document.write(filmsAndPeople)
+            }
+            loadMovies()
+        </script>
     </body>
 </html>
