@@ -1,15 +1,12 @@
-from flask_restplus import Namespace, Resource
+from flask import jsonify, Blueprint
 
-api = Namespace('Ghibli API', description='Ghibli API')
+blueprint = Blueprint('api', __name__, url_prefix='/api')
 
 
-@api.route('/movies')
-class MoviesApi(Resource):
-    @api.doc(
-        description='Get list of movies',
-        response={
-            200: 'Success'
-        }
-    )
-    def get(self):
-        return '', 200
+@blueprint.route('/movies')
+def list_movies():
+    movies = [
+        'My neighbor Totoro',
+        'Porco Rosso',
+    ]
+    return jsonify(movies)
