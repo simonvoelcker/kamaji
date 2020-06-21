@@ -8,28 +8,33 @@ class ApiTest(unittest.TestCase):
     def setUp(self) -> None:
         super().setUp()
         self.app = create_app(testing=True)
-        # Note: We could use config classes to distinguish production and test configurations.
-        # If there was more configuration to handle, such as a DB connection, that would be advisable.
+        # Note: We could use config classes to distinguish production and test
+        # configurations. If there was more configuration data to handle,
+        # such as a DB connection, that would be advisable.
         self.app.config['GHIBLI_API_HOST'] = 'http://fakehost.com'
         self.client = self.app.test_client()
 
     @responses.activate
     def _run_request(self, mock_films, mock_people, status=200):
         """
-        Helper method to run a request with given films and people to mock Ghibli API with.
+        Run a request with given films and people to mock Ghibli API with.
         """
-        responses.add(responses.GET, 'http://fakehost.com/films', json=mock_films, status=status)
-        responses.add(responses.GET, 'http://fakehost.com/people', json=mock_people, status=status)
+        responses.add(responses.GET, 'http://fakehost.com/films',
+                      json=mock_films, status=status)
+        responses.add(responses.GET, 'http://fakehost.com/people',
+                      json=mock_people, status=status)
         return self.client.get('/api/films-and-people')
 
     def test_request_failure(self):
         response = self._run_request(mock_films=[], mock_people=[], status=418)
         self.assertEqual(response.status_code, 502)
-        self.assertEqual(response.data.decode('utf-8'), 'Failed to get films from Ghibli API')
+        self.assertEqual(response.data.decode('utf-8'),
+                         'Failed to get films from Ghibli API')
 
     def test_no_films_or_people(self):
         """
-        With no films or people, the expected output of our films-and-people API is an empty dictionary.
+        With no films or people, the expected output of
+        our films-and-people API is an empty dictionary.
         """
         response = self._run_request(mock_films=[], mock_people=[])
         self.assertEqual(response.status_code, 200)
@@ -52,8 +57,9 @@ class ApiTest(unittest.TestCase):
 
     def test_no_films(self):
         """
-        With no films, the expected output of films-and-people is an empty dictionary.
-        We could still use the film IDs given in each persons "films" list, but we'd lack the film titles.
+        With no films, the expected output of is an empty dictionary.
+        We could still use the film IDs given in each persons "films" list,
+        but we'd lack the film titles.
         """
         person = {
             'id': '1',
@@ -70,8 +76,15 @@ class ApiTest(unittest.TestCase):
             'title': 'Léon: The Professional'
         }
         people = [
-            {'id': '1', 'name': 'Mathilda', 'films': ['http://fakehost.com/films/1']},
-            {'id': '2', 'name': 'Léon', 'films': ['http://fakehost.com/films/1']},
+            {
+                'id': '1',
+                'name': 'Mathilda',
+                'films': ['http://fakehost.com/films/1']
+            }, {
+                'id': '2',
+                'name': 'Léon',
+                'films': ['http://fakehost.com/films/1']
+            },
         ]
         response = self._run_request(mock_films=[film], mock_people=people)
         self.assertEqual(response.status_code, 200)

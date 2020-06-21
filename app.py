@@ -14,5 +14,8 @@ def create_app(testing: bool = False) -> Flask:
 
     app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'Unsafe Secret')
     app.config['TESTING'] = testing
-    app.config['GHIBLI_API_HOST'] = os.environ.get('GHIBLI_API_HOST', 'https://ghibliapi.herokuapp.com')
+    app.config['GHIBLI_API_HOST'] = os.environ.get(
+        'GHIBLI_API_HOST',
+        'https://ghibliapi.herokuapp.com'
+    )
     return app
