@@ -7,6 +7,13 @@ blueprint = Blueprint('api', __name__, url_prefix='/api')
 
 
 def get_from_ghibli_api(entity_type: str) -> list:
+    """
+    Run a request to the Ghibli API, as configured in the Flask config.
+    The entity_type may be films, people, locations, species, vehicles.
+
+    If the request fails, a 502: Bad Gateway response is generated.
+    This is because our application server acts as a gateway to the Ghibli API.
+    """
     host = current_app.config['GHIBLI_API_HOST']
     response = requests.get(f'{host}/{entity_type}')
     if response.status_code != 200:
@@ -63,5 +70,7 @@ def list_films_and_people() -> Response:
     }
 
     response = jsonify(films_and_people)
+
+    # Allow clients to cache the response for up to 60 seconds.
     response.cache_control.max_age = 60
     return response
