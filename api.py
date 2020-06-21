@@ -15,6 +15,12 @@ def get_from_ghibli_api(entity_type: str) -> list:
     return response.json()
 
 
+# Note:
+# Since this is a one-endpoint API, with no parameters, and no surprising
+# status codes to expect, I have chosen not to use Flask-RESTPlus or even
+# Swagger in this project. If either of the aforementioned circumstances were
+# different, these should be considered.
+
 @blueprint.route('/films-and-people')
 def list_films_and_people() -> Response:
     """
