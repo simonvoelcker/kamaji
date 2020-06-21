@@ -1,15 +1,8 @@
-from flask import Blueprint, render_template
+from flask import Blueprint
 
-blueprint = Blueprint(
-    'client',
-    __name__,
-    url_prefix='',
-    static_url_path='static',
-    static_folder='static',
-    template_folder='templates',
-)
+blueprint = Blueprint('client', __name__, static_folder='static')
 
 
 @blueprint.route('/')
 def index():
-    return render_template('index.html')
+    return blueprint.send_static_file('index.html')
