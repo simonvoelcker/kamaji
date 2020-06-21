@@ -35,3 +35,7 @@ Note how Docker did not save us any steps this time. But it replaces the virtual
 
 - Install Python and the pip requirements as stated above
 - `python -m unittest`
+
+## About the name
+
+Kamaji is a character from `Spirited Away`, one of the most well-known Ghibli movies. Kamaji works in the cellar of the bathhouse shown in this movie. He is a tireless worker and strong multi-tasker, and key to the success of the bathhouse business, although never seen by the guests. He is a true backend engineer!
