@@ -1,30 +1,27 @@
 import requests
 
-from flask import jsonify, Blueprint
+from flask import abort, jsonify, Blueprint, Response
 
 blueprint = Blueprint('api', __name__, url_prefix='/api')
 
 
+def get_from_ghibli_api(entity_type: str) -> list:
+    response = requests.get(f'https://ghibliapi.herokuapp.com/{entity_type}')
+    if response.status_code != 200:
+        abort(Response('Failed to get films list from Ghibli API', status=502))
+    return response.json()
+
+
 @blueprint.route('/films-and-people')
-def list_films_and_people():
-    response = requests.get('https://ghibliapi.herokuapp.com/films')
-    if response.status_code != 200:
-        return 'Failed to get films list from Ghibli API', 502
-    films = response.json()
+def list_films_and_people() -> Response:
+    films = get_from_ghibli_api('films')
+    people = get_from_ghibli_api('people')
 
-    film_title_by_id = {film['id']: film['title'] for film in films}
-
-    response = requests.get('https://ghibliapi.herokuapp.com/people')
-    if response.status_code != 200:
-        return 'Failed to get people list from Ghibli API', 502
-    people = response.json()
-
-    # map film id to a list of people names
-    # this mapping must be initialized with ALL film IDs as keys in case a film has no people in it
+    # Map film id to a list of people names. Initialize with ALL film names (even those without people).
     people_by_film_id = {film['id']: [] for film in films}
 
-    # add people to their respective films, as given by their "films" list
-    # skip those people whose film ID was missing in the films list
+    # Add people to their respective films, as given by their "films" list.
+    # Skip those people whose film ID was missing in the films list.
     for person in people:
         for film_url in person['films']:
             # TODO use a regex
@@ -32,8 +29,11 @@ def list_films_and_people():
             if film_id in people_by_film_id:
                 people_by_film_id[film_id].append(person['name'])
 
-    # look up film names and replace keys
-    # also sort people names for stable output
+    # Prepare lookup of film title by ID.
+    film_title_by_id = {film['id']: film['title'] for film in films}
+
+    # Create dictionary which maps film names to a list of names of people in the film.
+    # The lists of names are sorted to provide stable output.
     films_and_people = {
         film_title_by_id[film_id]: sorted(people)
         for film_id, people in people_by_film_id.items()

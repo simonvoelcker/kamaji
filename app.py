@@ -6,7 +6,7 @@ from api import blueprint as api_blueprint
 from client import blueprint as client_blueprint
 
 
-def create_app(testing=False):
+def create_app(testing: bool = False) -> Flask:
     app = Flask(__name__)
 
     app.register_blueprint(api_blueprint)
