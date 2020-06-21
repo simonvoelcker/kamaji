@@ -8,6 +8,9 @@ class ApiTest(unittest.TestCase):
     def setUp(self) -> None:
         super().setUp()
         self.app = create_app(testing=True)
+        # Note: We could use config classes to distinguish production and test configurations.
+        # If there was more configuration to handle, such as a DB connection, that would be advisable.
+        self.app.config['GHIBLI_API_HOST'] = 'http://fakehost.com'
         self.client = self.app.test_client()
 
     @responses.activate
@@ -15,14 +18,14 @@ class ApiTest(unittest.TestCase):
         """
         Helper method to run a request with given films and people to mock Ghibli API with.
         """
-        responses.add(responses.GET, 'https://ghibliapi.herokuapp.com/films', json=mock_films, status=status)
-        responses.add(responses.GET, 'https://ghibliapi.herokuapp.com/people', json=mock_people, status=status)
+        responses.add(responses.GET, 'http://fakehost.com/films', json=mock_films, status=status)
+        responses.add(responses.GET, 'http://fakehost.com/people', json=mock_people, status=status)
         return self.client.get('/api/films-and-people')
 
     def test_request_failure(self):
         response = self._run_request(mock_films=[], mock_people=[], status=418)
         self.assertEqual(response.status_code, 502)
-        self.assertEqual(response.data.decode('utf-8'), 'Failed to get films list from Ghibli API')
+        self.assertEqual(response.data.decode('utf-8'), 'Failed to get films from Ghibli API')
 
     def test_no_films_or_people(self):
         """
@@ -55,7 +58,7 @@ class ApiTest(unittest.TestCase):
         person = {
             'id': '1',
             'name': 'Mathilda',
-            'films': ['https://ghibliapi.herokuapp.com/films/1'],
+            'films': ['http://fakehost.com/films/1'],
         }
         response = self._run_request(mock_films=[], mock_people=[person])
         self.assertEqual(response.status_code, 200)
@@ -67,8 +70,8 @@ class ApiTest(unittest.TestCase):
             'title': 'Léon: The Professional'
         }
         people = [
-            {'id': '1', 'name': 'Mathilda', 'films': ['https://ghibliapi.herokuapp.com/films/1']},
-            {'id': '2', 'name': 'Léon', 'films': ['https://ghibliapi.herokuapp.com/films/1']},
+            {'id': '1', 'name': 'Mathilda', 'films': ['http://fakehost.com/films/1']},
+            {'id': '2', 'name': 'Léon', 'films': ['http://fakehost.com/films/1']},
         ]
         response = self._run_request(mock_films=[film], mock_people=people)
         self.assertEqual(response.status_code, 200)
@@ -85,8 +88,8 @@ class ApiTest(unittest.TestCase):
             'id': '1',
             'name': 'Tony',
             'films': [
-                'https://ghibliapi.herokuapp.com/films/1',
-                'https://ghibliapi.herokuapp.com/films/2',
+                'http://fakehost.com/films/1',
+                'http://fakehost.com/films/2',
             ]
         }
         response = self._run_request(mock_films=films, mock_people=[person])
