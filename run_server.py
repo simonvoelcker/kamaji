@@ -1,19 +1,9 @@
-import os
+from app import create_app
 
-from flask import Flask
-from flask_cors import CORS
+app = create_app()
 
-from api import blueprint as api_blueprint
-from client import blueprint as client_blueprint
-
-
-app = Flask(__name__)
-# TODO cors config, or go without cors
-CORS(app)
-
-app.register_blueprint(api_blueprint)
-app.register_blueprint(client_blueprint)
-
-app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'Unsafe Secret')
+# Note: This is not how one would run the application in production,
+# for reasons stated in the Flask documentation:
+# https://flask.palletsprojects.com/en/1.1.x/deploying/#deployment
 
 app.run(host='localhost', port=8000, debug=False)

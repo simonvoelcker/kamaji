@@ -24,14 +24,18 @@ def list_films_and_people():
     people_by_film_id = {film['id']: [] for film in films}
 
     # add people to their respective films, as given by their "films" list
+    # skip those people whose film ID was missing in the films list
     for person in people:
         for film_url in person['films']:
+            # TODO use a regex
             film_id = film_url.split('/')[-1]
-            people_by_film_id[film_id].append(person['name'])
+            if film_id in people_by_film_id:
+                people_by_film_id[film_id].append(person['name'])
 
     # look up film names and replace keys
+    # also sort people names for stable output
     films_and_people = {
-        film_title_by_id[film_id]: people
+        film_title_by_id[film_id]: sorted(people)
         for film_id, people in people_by_film_id.items()
     }
 
